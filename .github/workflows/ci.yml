@@ -12,6 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - run: |                         # Bash 의 추적 옵션 추가. 실행한 명령을 로그에 출력
+        set -x
+        date
+        hostname
+
     - uses: actions/checkout@v4            # 스탭 1: 체크아웃
 
     - name: Set up Go                      # 스텝 2: 언어 셋업
