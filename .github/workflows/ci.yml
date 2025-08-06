@@ -20,7 +20,7 @@ jobs:
         go-version: '1.24'
 
     - name: Test                               # 스탭 3: 테스트 실행
-      run: go test -v ./go/hello-world/...     # 폴더 생성 해서 이전 함으로 수정
+      run: go test -v ./go/hello-world/*.go     # 폴더 생성 해서 이전 함으로 수정
 
     - name: Build with Docker Compose          # 스탭 4: 도커 컴포즈 
       run: docker compose build
