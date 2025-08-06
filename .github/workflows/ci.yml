@@ -2,24 +2,25 @@ name: Go CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main" ]          # push 가 실행 되면 실행
+    paths: ['go/**/*.go']          # 단, go 파일 변경 시에만
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main" ]          # 풀 리퀘스트가 생성되면 실행
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4            # 스탭 1: 체크아웃
 
-    - name: Set up Go
+    - name: Set up Go                      # 스텝 2: 언어 셋업
       uses: actions/setup-go@v5
       with:
         go-version: '1.24'
 
-    - name: Test
-      run: go test -v ./...
+    - name: Test                               # 스탭 3: 테스트 실행
+      run: go test -v ./go/hello-world/...     # 폴더 생성 해서 이전 함으로 수정
 
-    - name: Build with Docker Compose
+    - name: Build with Docker Compose          # 스탭 4: 도커 컴포즈 
       run: docker compose build

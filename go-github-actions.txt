@@ -61,7 +61,7 @@ func Test_helloHandler(t *testing.T) {
 ## 3. Go 모듈 파일 (`go.mod`)
 
 ```
-module github.com/minih/github-actions-test
+module github-actions-test
 
 go 1.24.5
 ```
@@ -86,11 +86,11 @@ http {
 
 ```dockerfile
 # Build stage
-FROM golang:1.22-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
+COPY go.mod ./
 RUN go mod download
 
 COPY . .
@@ -149,7 +149,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.22'
+        go-version: '1.24'
 
     - name: Test
       run: go test -v ./...
