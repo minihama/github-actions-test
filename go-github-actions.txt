@@ -155,6 +155,5 @@ jobs:
       run: go test -v ./...
 
     - name: Build with Docker Compose
-      run: docker-compose build
+      run: docker compose build
 ```
-
