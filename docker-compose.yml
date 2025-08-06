@@ -1,6 +1,6 @@
 services:
   app:
-    build: .
+    build: ./go/hello-world
     container_name: go-app
 
   nginx:

@@ -1,6 +1,18 @@
 다음은 Go 웹 애플리케이션, Nginx 리버스 프록시, Docker 및 GitHub Actions를 사용하여 CI/CD 파이프라인을 구축하는 전체 구성입니다.
 
-## 1. Go 웹 애플리케이션 (`main.go`)
+## 1. 파일 구조
+
+- `github-actions-test/`
+  - `.github/workflows/ci.yml`
+  - `go/hello-world/`
+    - `main.go`
+    - `main_test.go`
+    - `go.mod`
+    - `Dockerfile`
+  - `docker-compose.yml`
+  - `nginx.conf`
+
+## 2. Go 웹 애플리케이션 (`go/hello-world/main.go`)
 
 ```go
 package main
@@ -23,7 +35,7 @@ func main() {
 }
 ```
 
-## 2. Go 테스트 코드 (`main_test.go`)
+## 3. Go 테스트 코드 (`go/hello-world/main_test.go`)
 
 ```go
 package main
@@ -58,15 +70,68 @@ func Test_helloHandler(t *testing.T) {
 }
 ```
 
-## 3. Go 모듈 파일 (`go.mod`)
+## 4. Go 모듈 파일 (`go/hello-world/go.mod`)
 
 ```
-module github-actions-test
+module github.com/minih/github-actions-test
 
 go 1.24.5
 ```
 
-## 4. Nginx 설정 파일 (`nginx.conf`)
+## 5. Dockerfile (`go/hello-world/Dockerfile`)
+
+```dockerfile
+# Build stage
+FROM golang:1.24-alpine AS builder
+
+WORKDIR /app
+
+# Copy go.mod
+COPY go.mod ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy the entire source code
+COPY . .
+
+# Build the Go app
+RUN CGO_ENABLED=0 GOOS=linux go build -o /go-app .
+
+# Final stage
+FROM alpine:latest
+
+WORKDIR /root/
+
+# Copy the pre-built binary from the builder stage
+COPY --from=builder /go-app .
+
+EXPOSE 8080
+
+# Command to run the executable
+CMD ["./go-app"]
+```
+
+## 6. Docker Compose 파일 (`docker-compose.yml`)
+
+```yaml
+services:
+  app:
+    build: ./go/hello-world
+    container_name: go-app
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app
+```
+
+## 7. Nginx 설정 파일 (`nginx.conf`)
 
 ```nginx
 events {}
@@ -82,53 +147,7 @@ http {
 }
 ```
 
-## 5. Dockerfile
-
-```dockerfile
-# Build stage
-FROM golang:1.24-alpine AS builder
-
-WORKDIR /app
-
-COPY go.mod ./
-RUN go mod download
-
-COPY . .
-
-RUN CGO_ENABLED=0 GOOS=linux go build -o /go-app
-
-# Final stage
-FROM alpine:latest
-
-WORKDIR /root/
-
-COPY --from=builder /go-app .
-
-EXPOSE 8080
-
-CMD ["./go-app"]
-```
-
-## 6. Docker Compose 파일 (`docker-compose.yml`)
-
-```yaml
-services:
-  app:
-    build: .
-    container_name: go-app
-
-  nginx:
-    image: nginx:latest
-    container_name: nginx-proxy
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - app
-```
-
-## 7. GitHub Actions 워크플로우 (`.github/workflows/ci.yml`)
+## 8. GitHub Actions 워크플로우 (`.github/workflows/ci.yml`)
 
 ```yaml
 name: Go CI
@@ -136,6 +155,7 @@ name: Go CI
 on:
   push:
     branches: [ "main" ]
+    paths: ['go/**/*.go']
   pull_request:
     branches: [ "main" ]
 
@@ -152,7 +172,7 @@ jobs:
         go-version: '1.24'
 
     - name: Test
-      run: go test -v ./...
+      run: go test -v ./go/hello-world/*.go
 
     - name: Build with Docker Compose
       run: docker compose build
