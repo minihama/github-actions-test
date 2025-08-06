@@ -1,3 +1,3 @@
-module github.com/minih/github-actions-test
+module github.com/minihama/github-actions-test
 
 go 1.24.5
