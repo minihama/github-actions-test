@@ -1,31 +1,51 @@
-name: Go CI
+name: Go CI and Versioning
 
 on:
   push:
-    branches: [ "main" ]          # push 가 실행 되면 실행
-    paths: ['go/**/*.go']          # 단, go 파일 변경 시에만
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]          # 풀 리퀘스트가 생성되면 실행
+    branches: [ "main" ]
 
 jobs:
-  build:
+  build-and-version:
     runs-on: ubuntu-latest
 
     steps:
-    - run: |                         # Bash 의 추적 옵션 추가. 실행한 명령을 로그에 출력
-        set -x
-        date
-        hostname
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        # `git push`를 사용하기 위해 PAT(Personal Access Token)가 필요합니다.
+        # GitHub 저장소의 Secrets에 `GH_PAT`라는 이름으로 토큰을 저장해야 합니다.
+        token: ${{ secrets.GH_PAT }}
 
-    - uses: actions/checkout@v4            # 스탭 1: 체크아웃
-
-    - name: Set up Go                      # 스텝 2: 언어 셋업
+    - name: Set up Go
       uses: actions/setup-go@v5
       with:
         go-version: '1.24'
 
-    - name: Test                               # 스탭 3: 테스트 실행
-      run: go test -v ./go/hello-world/*.go     # 폴더 생성 해서 이전 함으로 수정
+    - name: Run tests
+      run: go test -v ./go/hello-world/*.go
 
-    - name: Build with Docker Compose          # 스탭 4: 도커 컴포즈 
+    - name: Build with Docker Compose
       run: docker compose build
+
+    - name: Bump version and push
+      # main 브랜치에 push 이벤트가 발생했을 때만 실행합니다.
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        
+        # 현재 버전 읽기
+        current_version=$(cat VERSION)
+        
+        # 버전 업데이트 (vX.Y.Z -> vX.Y.Z+1)
+        new_version=$(echo $current_version | awk -F. '{OFS="."; $3++; print}')
+        
+        # VERSION 파일 업데이트
+        echo $new_version > VERSION
+        
+        # 변경사항 커밋 및 푸시
+        git add VERSION
+        git commit -m "Bump version to $new_version"
+        git push

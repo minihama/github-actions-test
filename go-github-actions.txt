@@ -11,8 +11,15 @@
     - `Dockerfile`
   - `docker-compose.yml`
   - `nginx.conf`
+  - `VERSION`
 
-## 2. Go 웹 애플리케이션 (`go/hello-world/main.go`)
+## 2. 버전 파일 (`VERSION`)
+
+```
+v0.1.0
+```
+
+## 3. Go 웹 애플리케이션 (`go/hello-world/main.go`)
 
 ```go
 package main
@@ -35,7 +42,7 @@ func main() {
 }
 ```
 
-## 3. Go 테스트 코드 (`go/hello-world/main_test.go`)
+## 4. Go 테스트 코드 (`go/hello-world/main_test.go`)
 
 ```go
 package main
@@ -70,7 +77,7 @@ func Test_helloHandler(t *testing.T) {
 }
 ```
 
-## 4. Go 모듈 파일 (`go/hello-world/go.mod`)
+## 5. Go 모듈 파일 (`go/hello-world/go.mod`)
 
 ```
 module github.com/minih/github-actions-test
@@ -78,7 +85,7 @@ module github.com/minih/github-actions-test
 go 1.24.5
 ```
 
-## 5. Dockerfile (`go/hello-world/Dockerfile`)
+## 6. Dockerfile (`go/hello-world/Dockerfile`)
 
 ```dockerfile
 # Build stage
@@ -112,7 +119,7 @@ EXPOSE 8080
 CMD ["./go-app"]
 ```
 
-## 6. Docker Compose 파일 (`docker-compose.yml`)
+## 7. Docker Compose 파일 (`docker-compose.yml`)
 
 ```yaml
 services:
@@ -131,7 +138,7 @@ services:
       - app
 ```
 
-## 7. Nginx 설정 파일 (`nginx.conf`)
+## 8. Nginx 설정 파일 (`nginx.conf`)
 
 ```nginx
 events {}
@@ -147,33 +154,58 @@ http {
 }
 ```
 
-## 8. GitHub Actions 워크플로우 (`.github/workflows/ci.yml`)
+## 9. GitHub Actions 워크플로우 (`.github/workflows/ci.yml`)
 
 ```yaml
-name: Go CI
+name: Go CI and Versioning
 
 on:
   push:
     branches: [ "main" ]
-    paths: ['go/**/*.go']
   pull_request:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build-and-version:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        # `git push`를 사용하기 위해 PAT(Personal Access Token)가 필요합니다.
+        # GitHub 저장소의 Secrets에 `GH_PAT`라는 이름으로 토큰을 저장해야 합니다.
+        token: ${{ secrets.GH_PAT }}
 
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
         go-version: '1.24'
 
-    - name: Test
+    - name: Run tests
       run: go test -v ./go/hello-world/*.go
 
     - name: Build with Docker Compose
       run: docker compose build
+
+    - name: Bump version and push
+      # main 브랜치에 push 이벤트가 발생했을 때만 실행합니다.
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        
+        # 현재 버전 읽기
+        current_version=$(cat VERSION)
+        
+        # 버전 업데이트 (vX.Y.Z -> vX.Y.Z+1)
+        new_version=$(echo $current_version | awk -F. '{OFS="."; $3++; print}')
+        
+        # VERSION 파일 업데이트
+        echo $new_version > VERSION
+        
+        # 변경사항 커밋 및 푸시
+        git add VERSION
+        git commit -m "Bump version to $new_version"
+        git push
 ```
