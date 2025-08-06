@@ -3,7 +3,7 @@ FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
-COPY go.mod ./go/hello-world/
+COPY go.mod ./
 RUN go mod download
 
 COPY . .
