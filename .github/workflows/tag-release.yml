@@ -8,7 +8,7 @@ jobs:
     pre-version:   # 잡의 순차 실행을 위한 키 이름 
         runs-on: ubuntu-latest
         outputs:
-            pre-version: ${{ steps.version.outputs.version }}
+            pre-version: ${{ steps.version.outputs.version }} # VERSION 파일에서 현재 버전 추출
         steps:
             - uses: actions/checkout@v4
               with:
@@ -134,3 +134,17 @@ jobs:
               run: |  # jobs.<잡_이름>.outputs.<출력_이름> 형태로 값을 참조
                 echo "The message from tag job is: ${{ needs.create-tag-update-version.outputs.tag-exists }}"        
                 echo "The update from VERSION file job is: ${{ needs.create-tag-update-version.outputs.update-version }}"        
+    create-release:
+        runs-on: ubuntu-latest
+        needs: ["check-commit", "create-log-new-version", "create-tag-update-version"]
+        if: ${{ needs.create-tag-update-version.outputs.tag-exists == 'false' }}
+        permissions:
+            contents: write # 릴리즈를 생성하려면 쓰기 권한이 필요합니다.
+        steps:
+            - uses: actions/checkout@v3
+            - name: Create a GitHub release
+              uses: ncipollo/release-action@v1
+              with:
+                  tag: ${{ needs.create-log-new-version.outputs.new-version }}
+                  name: "Release ${{ needs.create-log-new-version.outputs.new-version }}"
+                  body: ${{ needs.create-log-new-version.outputs.release-body }}
