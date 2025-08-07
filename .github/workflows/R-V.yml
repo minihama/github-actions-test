@@ -6,6 +6,8 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+        contents: write # 릴리즈를 생성하려면 쓰기 권한이 필요합니다.
     steps:
       - uses: actions/checkout@v4
         with:
