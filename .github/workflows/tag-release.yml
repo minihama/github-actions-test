@@ -68,7 +68,7 @@ jobs:
         if: ${{ needs.check-commit.outputs.version != '' }}
         outputs:
             #tag-exists: ${{ steps.create-tag.outputs.tag_exists }}
-            new-version: ${{ steps.update-version.outputs.new_version}}
+            new-version: ${{ steps.update-version.outputs.new-version}}
             release-body: ${{ steps.generate-body.outputs.body }}
         steps:
             - uses: actions/checkout@v3
@@ -89,7 +89,7 @@ jobs:
             - name: version update
               id: update-version
               run: |
-                  echo "new-version=$(echo ${{ needs.check-commit.outputs.version }} | awk -F. '{OFS="."; $3++; print}' )"  >>"$GITHUB_OUTPUT"
+                  echo "new-version=$(echo ${{ needs.check-commit.outputs.version }} | awk -F. '{OFS="."; $3++; print}' )"  >> $GITHUB_OUTPUT
               shell: bash
             #- uses: rickstaa/action-create-tag@v1
             #  id: create-tag
