@@ -29,12 +29,12 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           custom_tag: ${{ steps.version.outputs.result }} # 버전 파일에서 읽은 버전 사용
-          tag_prefix: "v" # 필요에 따라 접두사 추가
+          #tag_prefix: "v" # 필요에 따라 접두사 추가
 
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1 # 최신 버전으로 업데이트
         with:
-          tag: "v${{ steps.version.outputs.result }}" #  버전 prefix를 포함하여 릴리즈 생성
+          tag: ${{ steps.version.outputs.result }} #  버전 prefix를 포함하여 릴리즈 생성
           name: "Release ${{ steps.version.outputs.result }}" # 릴리즈 제목
           body: "Release notes for version ${{ steps.version.outputs.result }}" # 릴리즈 노트 (선택 사항)
           draft: false # 초안으로 만들지 여부 (선택 사항)
