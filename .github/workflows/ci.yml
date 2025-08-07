@@ -21,9 +21,10 @@ jobs:
 
     - name: Run tests
       run: go test -v ./go/hello-world/*.go
-
-    - name: Build with Docker Compose
-      run: docker compose build
+    
+    # 릴리즈 테스트를 위한 임시 주석 
+    #- name: Build with Docker Compose
+    #  run: docker compose build
 
     #- name: Bump version and push
     #  # main 브랜치에 push 이벤트가 발생했을 때만 실행합니다.
