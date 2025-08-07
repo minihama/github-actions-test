@@ -62,6 +62,7 @@ jobs:
             - name: check loaded version
               run: |  # jobs.<잡_이름>.outputs.<출력_이름> 형태로 값을 참조
                 echo "The version from pre-version job is: ${{ needs.check-commit.outputs.version }}"        
+
     create-log-new-version:
         runs-on: ubuntu-latest
         needs: ["check-commit"]
@@ -100,7 +101,7 @@ jobs:
             - name: check version update
               run: |  # jobs.<잡_이름>.outputs.<출력_이름> 형태로 값을 참조
                 echo "The version update from new version job is: ${{ needs.create-log-new-version.outputs.new-version }}"        
-    create-tag:
+    create-tag-update-version:
         runs-on: ubuntu-latest
         needs: ["create-log-new-version"]
         if: ${{ needs.create-log-new-version.outputs.new-version != '' }}
@@ -108,6 +109,7 @@ jobs:
             contents: write # 릴리즈를 생성하려면 쓰기 권한이 필요합니다.
         outputs:
             tag-exists: ${{ steps.create-tag.outputs.tag_exists }}
+            update-version: ${{ steps.update-version-file.outputs.update-version }}
         steps:
             - uses: actions/checkout@v3
               with:
@@ -118,10 +120,17 @@ jobs:
                   tag: ${{ needs.create-log-new-version.outputs.new-version }}
                   tag_exists_error: true
                   message: ${{ needs.create-log-new-version.outputs.release-body }}
-    check-create-tag:    # 잡의 순차 실행을 위한 키 이름(출력 값 확인)
+            - name: update version file
+              id: update-version-file
+              run: |   # 버전에서 3번째 필드의 값을 1 증가 시킴, 첫번재 2번재는 관여 안함
+                  echo ${{ needs.create-log-new-version.outputs.new-version }} > VERSION
+                  echo "update-version=$(cat VERSION)"  >> $GITHUB_OUTPUT
+              shell: bash
+    check-create-tag-update-version:    # 잡의 순차 실행을 위한 키 이름(출력 값 확인)
         runs-on: ubuntu-latest
-        needs: ["create-tag"]
+        needs: ["create-tag-update-version"]
         steps: 
             - name: check tag message
               run: |  # jobs.<잡_이름>.outputs.<출력_이름> 형태로 값을 참조
-                echo "The message from tag job is: ${{ needs.create-tag.outputs.tag-exists }}"        
+                echo "The message from tag job is: ${{ needs.create-tag-update-version.outputs.tag-exists }}"        
+                echo "The update from VERSION file job is: ${{ needs.create-tag-update-version.outputs.update-version }}"        
