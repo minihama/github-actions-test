@@ -27,8 +27,8 @@ jobs:
         needs: ["check-commit"]
         steps:
             - env:
-                 RESULT: ${{ needs.before.outputs.result }}   # 의존 잡의 출력값 참조
+                 RESULT: ${{ needs.check-commit.outputs.result }}   # 의존 잡의 출력값 참조
               run: echo "${RESULT}"          
             - env:
-                 VERSION: ${{ needs.before.outputs.version }}   # 의존 잡의 출력값 참조
+                 VERSION: ${{ needs.check-commit.outputs.version }}   # 의존 잡의 출력값 참조
               run: echo "${VERSION}"   
