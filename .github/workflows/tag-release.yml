@@ -28,36 +28,36 @@ jobs:
         needs: ["pre-version"]
         steps:
             - name: check loaded version
-              run: |
-                # jobs.<잡_이름>.outputs.<출력_이름> 형태로 값을 참조
+              run: |  # jobs.<잡_이름>.outputs.<출력_이름> 형태로 값을 참조
                 echo "The version from pre-version job is: ${{ needs.pre-version.outputs.pre-version }}"        
 
-#    check-commit:   # 잡의 순차 실행을 위한 키 이름 
-#        runs-on: ubuntu-latest
-#        needs: ["pre-version"]
-#        if: ${{ needs.pre-version.outputs.pre-versions != '' }}
-#        outputs:
-#            result: ${{ steps.check.outputs.result }}   # 출력 ID: 잡 수준(check-commit.result)의 출력값
-#            version: ${{ steps.get-version.outputs.version }}
-#        steps:
-#            - uses: actions/checkout@v3
-#            - name: Check commit message
-#              id: check      # 스텝 ID
-#              # 커밋 메시지 내용이 head_commit.message에 기입 된다.
-#              # 스텝 수준(check.result)의 출력값
-#              run: echo "result=$(echo '${{ github.event.head_commit.message }}' | grep -oP '^Update version to v(\d|\.)+$')" >> $GITHUB_OUTPUT
-#              shell: bash
-#            - name: Get version
-#              id: get-version
-#              run: echo "version=$(echo '${{ github.event.head_commit.message }}' | grep -oP 'v(\d|\.)+')" >> $GITHUB_OUTPUT
-#              shell: bash
-#    check-commit-message:    # 잡의 순차 실행을 위한 키 이름(출력 값 확인)
-#        runs-on: ubuntu-latest
-#        needs: ["check-commit"]
-#        steps:
-#            - env:
-#                 RESULT: ${{ needs.check-commit.outputs.result }}   # 의존 잡의 출력값 참조
-#              run: echo "${RESULT}"          
-#            - env:
-#                 VERSION: ${{ needs.check-commit.outputs.version }}   # 의존 잡의 출력값 참조
-#              run: echo "${VERSION}"   
+    check-commit:   # 잡의 순차 실행을 위한 키 이름 
+        runs-on: ubuntu-latest
+        needs: ["pre-version"]
+        if: ${{ needs.pre-version.outputs.pre-version != '' }}
+        outputs:
+            result: ${{ steps.check.outputs.result }}   # 출력 ID: 잡 수준(check-commit.result)의 출력값
+            version: ${{ steps.get-version.outputs.version }}
+        steps:
+            - uses: actions/checkout@v3
+            - name: Check commit message
+              id: check      # 스텝 ID
+              # 커밋 메시지 내용이 head_commit.message에 기입 된다.
+              # 스텝 수준(check.result)의 출력값
+              run: echo "result=$(echo '${{ github.event.head_commit.message }}' | grep -oP '^Update version to v(\d|\.)+$')" >> $GITHUB_OUTPUT
+              shell: bash
+            - name: Get version
+              id: get-version
+              #run: echo "version=$(echo '${{ github.event.head_commit.message }}' | grep -oP 'v(\d|\.)+')" >> $GITHUB_OUTPUT
+              run: echo "version=$(echo '${{ needs.pre-version.outputs.pre-version }}')" >> $GITHUB_OUTPUT
+              shell: bash
+    check-commit-message:    # 잡의 순차 실행을 위한 키 이름(출력 값 확인)
+        runs-on: ubuntu-latest
+        needs: ["check-commit"]
+        steps: 
+            - name: check loaded commit message
+              run: |  # jobs.<잡_이름>.outputs.<출력_이름> 형태로 값을 참조
+                echo "The version from pre-version job is: ${{ needs.check-commit.outputs.result }}"        
+            - name: check loaded version
+              run: |  # jobs.<잡_이름>.outputs.<출력_이름> 형태로 값을 참조
+                echo "The version from pre-version job is: ${{ needs.check-commit.outputs.version }}"        
