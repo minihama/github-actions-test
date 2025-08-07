@@ -4,4 +4,3 @@ changelog:
       labels:            # 'Bug Fixes'에 기재할 풀 리퀘스트 레이블을 지정한다.
         - bug
         - fixes
-        - test
