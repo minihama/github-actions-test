@@ -85,7 +85,7 @@ jobs:
       - name: update version file (local only for this job)
         id: update-version-file
         run: |
-          new-version=$(echo ${{ needs.pre-version.outputs.pre-version }} | awk -F. '{OFS="."; $3++; print}' )" 
+          new-version=$(echo ${{ needs.pre-version.outputs.pre-version }} | awk -F. '{OFS="."; $3++; print}' )
           echo $new-version > VERSION
           echo "update-version=$(cat VERSION)" >> $GITHUB_OUTPUT
         shell: bash    
