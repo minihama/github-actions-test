@@ -6,6 +6,8 @@ on:
  
 jobs:
     pre-version:   # 잡의 순차 실행을 위한 키 이름 
+        # `if` 조건: 워크플로우를 트리거한 액터(actor)가 'github-actions[bot]'이 아닐 경우에만 이 job을 실행합니다.
+        if: github.actor != 'github-actions[bot]'
         runs-on: ubuntu-latest
         outputs:
             pre-version: ${{ steps.version.outputs.version }} # VERSION 파일에서 현재 버전 추출
@@ -113,7 +115,7 @@ jobs:
         steps:
             - uses: actions/checkout@v3
               with:
-                  fetch-depth: 0
+                  fetch-depth: 0        
             - uses: rickstaa/action-create-tag@v1
               id: create-tag
               with:
@@ -122,7 +124,9 @@ jobs:
                   message: ${{ needs.create-log-new-version.outputs.release-body }}
             - name: update version file
               id: update-version-file
-              run: |   # 버전에서 3번째 필드의 값을 1 증가 시킴, 첫번재 2번재는 관여 안함
+              # 이전 스텝에서 생성된 새 버전 값을 VERSION 파일에 씁니다. 
+              # 변경된 버전 값을 GitHub Actions의 다음 스텝에서 사용할 수 있도록 출력합니다.
+              run: | 
                   echo ${{ needs.create-log-new-version.outputs.new-version }} > VERSION
                   echo "update-version=$(cat VERSION)"  >> $GITHUB_OUTPUT
               shell: bash
@@ -148,3 +152,29 @@ jobs:
                   tag: ${{ needs.create-log-new-version.outputs.new-version }}
                   name: "Release ${{ needs.create-log-new-version.outputs.new-version }}"
                   body: ${{ needs.create-log-new-version.outputs.release-body }} 
+                  draft: false # 초안으로 만들지 여부 (선택 사항)
+                  prerelease: false # 시험판 릴리즈 여부 (선택 사항)
+    auto-git-push:
+        runs-on: ubuntu-latest
+        needs: ["check-commit", "create-log-new-version", "create-tag-update-version"]
+        if: ${{ needs.create-tag-update-version.outputs.tag-exists == 'false' }}
+        permissions:
+            contents: write # 릴리즈를 생성하려면 쓰기 권한이 필요합니다.
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0        
+                  # `git push`를 사용하기 위해 PAT(Personal Access Token)가 필요합니다.
+                  # GitHub 저장소의 Secrets에 `GH_PAT`라는 이름으로 토큰을 저장해야 합니다.
+                  token: $ {{ secrets.GH_PAT }}
+            - name: git push
+              id: git-push
+              # 이전 스텝에서 생성된 새 버전 값을 VERSION 파일에 씁니다. 
+              # 변경된 버전 값을 GitHub Actions의 다음 스텝에서 사용할 수 있도록 출력합니다.
+              run: |
+                  git config --global user.name 'github-actions[bot]'
+                  git config --global user.email 'github-actions[bot]@users.noreply.github.com'     
+                  git add VERSION
+                  git commit -m "chore: Update version to $(cat VERSION)"
+                  git push 
+              shell: bash      
