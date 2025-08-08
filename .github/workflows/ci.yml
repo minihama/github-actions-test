@@ -23,26 +23,5 @@ jobs:
       run: go test -v ./go/hello-world/*.go
     
     # 릴리즈 테스트를 위한 임시 주석 
-    #- name: Build with Docker Compose
-    #  run: docker compose build
-
-    #- name: Bump version and push
-    #  # main 브랜치에 push 이벤트가 발생했을 때만 실행합니다.
-    #  if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    #  run: |
-    #    git config --global user.name 'github-actions[bot]'
-    #    git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-    #    
-    #    # 현재 버전 읽기
-    #    current_version=$(cat VERSION)
-    #    
-    #    # 버전 업데이트 (vX.Y.Z -> vX.Y.Z+1)
-    #    new_version=$(echo $current_version | awk -F. '{OFS="."; $3++; print}')
-    #    
-    #    # VERSION 파일 업데이트
-    #    echo $new_version > VERSION
-    #    
-    #    # 변경사항 커밋 및 푸시
-    #    git add VERSION
-    #    git commit -m "Bump version to $new_version"
-    #    git push
+    - name: Build with Docker Compose
+      run: docker compose build
