@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  actions: write # 이 라인을 추가하여 workflow_dispatch 권한을 부여합니다.
+
 jobs:
   build-and-version:
     runs-on: ubuntu-latest
