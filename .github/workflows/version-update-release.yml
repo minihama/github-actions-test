@@ -29,25 +29,29 @@ jobs:
             const version = fs.readFileSync(versionFile, 'utf8').trim();
             core.setOutput('version', version);
 
-  load-commit-message:
-    name: 커밋 메시지 로드
-    runs-on: ubuntu-latest
-    needs: ["pre-version"]
-    if: ${{ needs.pre-version.outputs.pre-version != '' }} 
-    outputs:
-      commit-message: ${{ steps.check.outputs.commit-message }}
-    steps:
-      - uses: actions/checkout@v4 # 최신 버전 사용 권장
-      - name: Check commit message
-        id: check
-        run: echo "commit-message=$(echo '${{ github.event.head_commit.message }}')" >> $GITHUB_OUTPUT
-        shell: bash
+# 아래 내역은 푸쉬 이벤트로 workflow_dispatch를 함으로 해당 내역은 주석으로 테스트
+#  load-commit-message:
+#    name: 커밋 메시지 로드
+#    runs-on: ubuntu-latest
+#    needs: ["pre-version"]
+#    if: ${{ needs.pre-version.outputs.pre-version != '' }} 
+#    outputs:
+#      commit-message: ${{ steps.check.outputs.commit-message }}
+#    steps:
+#      - uses: actions/checkout@v4 # 최신 버전 사용 권장
+#      - name: Check commit message
+#        id: check
+#        run: echo "commit-message=$(echo '${{ github.event.head_commit.message }}')" >> $GITHUB_OUTPUT
+#        shell: bash
 
+# 커밋 메시지가 없어졌음으로 여기는 버전을 참조하는 것으로 수정
   load-log:
     name: 로그에서 커밋된 로그 로드
     runs-on: ubuntu-latest
-    needs: ["load-commit-message"]
-    if: ${{ needs.load-commit-message.outputs.commit-message != '' }} 
+    # needs: ["load-commit-message"]
+    needs: ["pre-version"]
+    # if: ${{ needs.load-commit-message.outputs.commit-message != '' }} 
+    if: ${{ needs.pre-version.outputs.pre-version != '' }} 
     outputs:
       log-body: ${{ steps.generate-body.outputs.body }}
     steps:
@@ -147,7 +151,7 @@ jobs:
   create-release:
     name: 릴리즈 생성
     runs-on: ubuntu-latest
-    needs: ["load-commit-message", "load-log", "create-tag", "update-version"]
+    needs: ["load-log", "create-tag", "update-version"]
     if: ${{ needs.create-tag.outputs.tag-exists == 'false' }} 
     permissions:
       contents: write # 릴리즈를 생성하려면 쓰기 권한이 필요합니다.
