@@ -174,6 +174,7 @@ jobs:
               run: |
                   git config --global user.name 'github-actions[bot]'
                   git config --global user.email 'github-actions[bot]@users.noreply.github.com'     
+                  echo ${{ needs.create-log-new-version.outputs.new-version }} > VERSION 
                   git add VERSION
                   cat VERSION
                   git commit -m "chore: Update version to $(cat VERSION)"
