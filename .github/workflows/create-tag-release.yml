@@ -84,11 +84,13 @@ jobs:
       - uses: actions/checkout@v4 # 최신 버전 사용 권장
       - name: update version file (local only for this job)
         id: update-version-file
+        # 'new-version' 변수명을 'new_version'으로 변경했습니다.
+        # 변경된 변수명을 사용하여 파일에 쓰고, 출력합니다.
         run: |
-          new-version=$(echo ${{ needs.pre-version.outputs.pre-version }} | awk -F. '{OFS="."; $3++; print}' )
-          echo $new-version > VERSION
-          echo "update-version=$(cat VERSION)" >> $GITHUB_OUTPUT
-        shell: bash    
+            new_version=$(echo ${{ needs.pre-version.outputs.pre-version }} | awk -F. '{OFS="."; $3++; print}' )
+            echo "$new_version" > VERSION
+            echo "update-version=$(cat VERSION)" >> $GITHUB_OUTPUT
+        shell: bash
       
   create-tag:
     name: 새로운 버전으로 태그 생성
