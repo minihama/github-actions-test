@@ -87,9 +87,30 @@ jobs:
         # 'new-version' 변수명을 'new_version'으로 변경했습니다.
         # 변경된 변수명을 사용하여 파일에 쓰고, 출력합니다.
         run: |
-            new_version=$(echo ${{ needs.pre-version.outputs.pre-version }} | awk -F. '{OFS="."; $3++; print}' )
-            echo "$new_version" > VERSION
-            echo "update-version=$(cat VERSION)" >> $GITHUB_OUTPUT
+          # 현재 버전 값을 가져옵니다.
+          current_version="${{ needs.pre-version.outputs.pre-version }}"
+          
+          # 버전을 Major, Minor, Patch로 분리합니다.
+          IFS='.' read -r major minor patch <<< "$current_version"
+  
+          # Patch 버전을 1 증가시킵니다.
+          patch=$((patch + 1))
+  
+          # Patch 버전이 99를 초과하면 (즉, 100이 되면) Minor 버전을 증가시키고 Patch를 0으로 초기화합니다.
+          if [ "$patch" -gt 99 ]; then
+              patch=0
+              minor=$((minor + 1))
+              # 필요하다면 Minor 버전도 99를 초과할 때 Major 버전을 증가시키는 로직을 추가할 수 있습니다.
+              # 예: if [ "$minor" -gt 99 ]; then minor=0; major=$((major + 1)); fi
+          fi
+  
+          # 새로운 버전 문자열을 조합합니다.
+          # printf "%02d" $patch 를 사용하여 0.0.10 이 아닌 0.0.010 이 되지 않도록 0으로 채워줍니다.
+          new_version="${major}.${minor}.$(printf "%02d" $patch)"
+          
+          # VERSION 파일에 새 버전을 쓰고, GitHub Actions의 출력으로도 내보냅니다.
+          echo "$new_version" > VERSION
+          echo "update-version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
         shell: bash
       
   create-tag:
