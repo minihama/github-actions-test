@@ -6,8 +6,6 @@ on:
  
 jobs:
     pre-version:   # 잡의 순차 실행을 위한 키 이름 
-        # `if` 조건: 워크플로우를 트리거한 액터(actor)가 'github-actions[bot]'이 아닐 경우에만 이 job을 실행합니다.
-        if: github.actor != 'github-actions[bot]'
         runs-on: ubuntu-latest
         outputs:
             pre-version: ${{ steps.version.outputs.version }} # VERSION 파일에서 현재 버전 추출
