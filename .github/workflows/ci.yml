@@ -22,6 +22,5 @@ jobs:
     - name: Run tests
       run: go test -v ./go/hello-world/*.go
     
-    # 릴리즈 테스트를 위한 임시 주석 
     - name: Build with Docker Compose
       run: docker compose build
