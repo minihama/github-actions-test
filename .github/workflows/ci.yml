@@ -27,6 +27,12 @@ jobs:
     
     #- name: Build with Docker Compose
     #  run: docker compose build
+
+    - name: 변수 시크릿 테스트
+      run: |
+          echo "Hello World! Github Actions 🚀"
+          echo ENV: ${{ vars.LINUX_ROOT_USER }}
+          echo SECRET: ${{ secrets.LINUX_ROOT_PW }}
     
     - name: Trigger CD workflow
       if: success() && github.ref == 'refs/heads/main'
