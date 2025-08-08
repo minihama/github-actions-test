@@ -93,6 +93,10 @@ jobs:
           # 버전을 Major, Minor, Patch로 분리합니다.
           IFS='.' read -r major minor patch <<< "$current_version"
   
+          # Patch 버전을 연산하기 전에 앞에 붙은 0을 제거하여 10진수로 처리합니다.
+          # 예: "09" -> "9"
+          patch="${patch##0}"
+          
           # Patch 버전을 1 증가시킵니다.
           patch=$((patch + 1))
   
@@ -103,9 +107,11 @@ jobs:
               # 필요하다면 Minor 버전도 99를 초과할 때 Major 버전을 증가시키는 로직을 추가할 수 있습니다.
               # 예: if [ "$minor" -gt 99 ]; then minor=0; major=$((major + 1)); fi
           fi
-  
+          
           # 새로운 버전 문자열을 조합합니다.
-          # printf "%02d" $patch 를 사용하여 0.0.10 이 아닌 0.0.010 이 되지 않도록 0으로 채워줍니다.
+          # printf "%02d" $patch 를 사용하여 패치 버전이 한 자리일 경우 앞에 0을 붙여 두 자리로 만듭니다.
+          # 예: 0.0.9 -> 0.0.10 (패치 증가)
+          # 예: 0.0.99 -> 0.1.00 (롤오버)
           new_version="${major}.${minor}.$(printf "%02d" $patch)"
           
           # VERSION 파일에 새 버전을 쓰고, GitHub Actions의 출력으로도 내보냅니다.
