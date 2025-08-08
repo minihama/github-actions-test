@@ -1,8 +1,13 @@
 name: CI/CD 파이프라인 - 버전 업데이트 및 릴리즈
 
 on:
-  push:
-    branches: [ "main" ] # main 브랜치에 푸시될 때 워크플로우를 트리거합니다.
+  workflow_dispatch: # 트리거를 수동으로 변경하거나 다른 워크플로우의 신호를 받도록 변경
+    branches: [ "main" ]
+  
+# 기존의 push 트리거는 제거하거나 주석 처리하여, ci.yml의 성공 후에만 실행되도록 합니다.
+# on:
+#   push:
+#     branches: [ "main" ]
 
 jobs:
   pre-version:

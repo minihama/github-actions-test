@@ -1,4 +1,4 @@
-name: Go CI and Versioning
+name: Go CI
 
 on:
   push:
@@ -23,4 +23,17 @@ jobs:
       run: go test -v ./go/hello-world/*.go
     
     - name: Build with Docker Compose
-      run: docker compose build 
+      run: docker compose build
+    
+    - name: Trigger CD workflow
+      if: success() && github.ref == 'refs/heads/main'
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          github.rest.actions.createWorkflowDispatch({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            workflow_id: 'version-update-release.yml',
+            ref: 'main'
+          })
