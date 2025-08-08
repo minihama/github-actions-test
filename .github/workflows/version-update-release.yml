@@ -3,11 +3,6 @@ name: CI/CD 파이프라인 - 버전 업데이트 및 릴리즈
 on:
   workflow_dispatch: # 트리거를 수동으로 변경하거나 다른 워크플로우의 신호를 받도록 변경
     branches: [ "main" ]
-  
-# 기존의 push 트리거는 제거하거나 주석 처리하여, ci.yml의 성공 후에만 실행되도록 합니다.
-# on:
-#   push:
-#     branches: [ "main" ]
 
 jobs:
   pre-version:
@@ -29,28 +24,10 @@ jobs:
             const version = fs.readFileSync(versionFile, 'utf8').trim();
             core.setOutput('version', version);
 
-# 아래 내역은 푸쉬 이벤트로 workflow_dispatch를 함으로 해당 내역은 주석으로 테스트
-#  load-commit-message:
-#    name: 커밋 메시지 로드
-#    runs-on: ubuntu-latest
-#    needs: ["pre-version"]
-#    if: ${{ needs.pre-version.outputs.pre-version != '' }} 
-#    outputs:
-#      commit-message: ${{ steps.check.outputs.commit-message }}
-#    steps:
-#      - uses: actions/checkout@v4 # 최신 버전 사용 권장
-#      - name: Check commit message
-#        id: check
-#        run: echo "commit-message=$(echo '${{ github.event.head_commit.message }}')" >> $GITHUB_OUTPUT
-#        shell: bash
-
-# 커밋 메시지가 없어졌음으로 여기는 버전을 참조하는 것으로 수정
   load-log:
     name: 로그에서 커밋된 로그 로드
     runs-on: ubuntu-latest
-    # needs: ["load-commit-message"]
     needs: ["pre-version"]
-    # if: ${{ needs.load-commit-message.outputs.commit-message != '' }} 
     if: ${{ needs.pre-version.outputs.pre-version != '' }} 
     outputs:
       log-body: ${{ steps.generate-body.outputs.body }}
