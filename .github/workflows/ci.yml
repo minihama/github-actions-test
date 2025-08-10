@@ -11,19 +11,27 @@ permissions:
 
 jobs:
   build-and-version:
-    runs-on: ubuntu-latest
+  #  runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.24'
+    - name: self hosted server
+      run: |
+        echo "Self hosted server🚀"
+        whoami
+        ip a
+        ls -al
 
-    - name: Run tests
-      run: go test -v ./go/hello-world/*.go
+    #- name: Set up Go
+    #  uses: actions/setup-go@v5
+    #  with:
+    #    go-version: '1.24'
+
+    #- name: Run tests
+    #  run: go test -v ./go/hello-world/*.go
     
     #- name: Build with Docker Compose
     #  run: docker compose build
@@ -34,17 +42,17 @@ jobs:
     #      echo ENV: ${{ vars.LINUX_ROOT_USER }}
     #      echo SECRET: ${{ secrets.LINUX_ROOT_PW }}
     
-    - name: executing remote ssh commands using password
-      uses: appleboy/ssh-action@v1.2.0
-      with:
-        host: ${{ secrets.HOST_URL }}
-        username: ${{ vars.HOST_ID }}
-        password: ${{ secrets.HOST_PW }}
-        port: ${{ secrets.HOST_PORT_21 }}
-        script: |
-          whoami
-          ip a
-          ls -al       
+    #- name: executing remote ssh commands using password
+    #  uses: appleboy/ssh-action@v1.2.0
+    #  with:
+    #    host: ${{ secrets.HOST_URL }}
+    #    username: ${{ vars.HOST_ID }}
+    #    password: ${{ secrets.HOST_PW }}
+    #    port: ${{ secrets.HOST_PORT_21 }}
+    #    script: |
+    #      whoami
+    #      ip a
+    #      ls -al       
     
     - name: Trigger CD workflow
       if: success() && github.ref == 'refs/heads/main'
