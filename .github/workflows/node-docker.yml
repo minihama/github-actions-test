@@ -35,3 +35,16 @@ jobs:
           push: true      # 푸시 제어 처리
           tags: ${{ steps.meta.outputs.tags }}   # 컨테이너 이미지의 태그
           labels: ${{ steps.meta.outputs.labels }}  # 컨테이너 이미지의 레이블
+
+      - name: Trigger CD workflow
+        if: success() && github.ref == 'refs/heads/main'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'version-update-release.yml',
+              ref: 'main'
+            })          

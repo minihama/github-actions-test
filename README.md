@@ -1,11 +1,12 @@
-## Dockerfile 을 이용한 패키지 구성
+## Dockerfile 을 이용한 패키지 구성 (v0.0.18)
   1. node/example/Dockerfile 생성 (완료)
   2. .github/workflows/node-docker.yml 파일 생성 (완료)
-  3. 도커파일의 이미지 패키지 생성 구문 (테스트)
+  3. 도커파일의 이미지 패키지 생성 구문 (완료)
   4. 기존 테스트 하던 ci.yml은 깃허브 액션에서 disable 처리 (완료)
   5. context에러 수정 (완료)
-  6. Dockerfile 에러 수정 (테스트)
-  7. package.json 파일 추가 (테스트)
+  6. Dockerfile 에러 수정 (완료)
+  7. package.json 파일 추가 (완료)
+  8. node-docker.yml 파일에 릴리즈 자동 생성 구문 추가 (완료)
 
 ## 깃허브 러너를 사용자 호트팅에 설치(v0.0.17)
   1. 깃허브 웹에서 러너 설치 페이지 확인 (완료)
