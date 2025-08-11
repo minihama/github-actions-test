@@ -10,6 +10,7 @@ jobs:
     permissions:
       contents: read  # 소스코에 체크아웃 허가
       packages: write # 패키지 쓰기 권한 필요
+      actions: write # 이 라인을 추가하여 workflow_dispatch 권한을 부여합니다.
     
     steps:
       - name: Checkout repository

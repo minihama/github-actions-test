@@ -7,6 +7,7 @@
   6. Dockerfile 에러 수정 (완료)
   7. package.json 파일 추가 (완료)
   8. node-docker.yml 파일에 릴리즈 자동 생성 구문 추가 (완료)
+  9. workflow_dispatch 권한을 추가 (완료)
 
 ## 깃허브 러너를 사용자 호트팅에 설치(v0.0.17)
   1. 깃허브 웹에서 러너 설치 페이지 확인 (완료)
