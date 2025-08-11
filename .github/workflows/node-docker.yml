@@ -1,0 +1,37 @@
+name: Node Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read  # 소스코에 체크아웃 허가
+      packages: write # 패키지 쓰기 권한 필요
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3  # 컨테이너 레지스트리 로그린
+        with:
+          registry: ghcr.io                      # 컨테이너 레지스트리의 호스트명
+          username: ${{ github.actor }}          # 컨테이너 레지스트리의 로그인 ID
+          password: ${{ secrets.GITHUB_TOKEN }}  # 컨테이너 레지스트리의 로그인 패스워드
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5   # 컨테이너 이미지의 메타데이터 생성
+        with:   # 이미지명은 컨테이너 리지스트리의 명명 규칙을 따름
+          images: ghcr.io/${{ github.repository }} # ghcr.io/<소유자>/<리포지토리>
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5  # 컨테이너 이미지 빌드와 푸시
+        with:
+          context: /node/example/   # Dockerfile 위치 / 컨테이너 이미지의 콘텍스트
+          push: true      # 푸시 제어 처리
+          tags: ${{ steps.meta.outputs.tags }}   # 컨테이너 이미지의 태그
+          labels: ${{ steps.meta.outputs.labels }}  # 컨테이너 이미지의 레이블

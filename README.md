@@ -1,7 +1,13 @@
+## Dockerfile 을 이용한 패키지 구성
+  1. node/example/Dockerfile 생성 (완료)
+  2. .github/workflows/node-docker.yml 파일 생성 (완료)
+  3. 도커파일의 이미지 패키지 생성 구문 (테스트)
+  4. 기존 테스트 하던 ci.yml은 깃허브 액션에서 disable 처리 (완료)
+
 ## 깃허브 러너를 사용자 호트팅에 설치(v0.0.17)
   1. 깃허브 웹에서 러너 설치 페이지 확인 (완료)
   2. 호스트 서버에 깃허브 러너 설치 (완료)
-  3. runs-on: self-hosted 을 설정 해서 접속 테스트 (테스트)
+  3. runs-on: self-hosted 을 설정 해서 접속 테스트 (완료)
 
 ## 시크릿 테스트 (.github/workflows/ci.yml)
   1. 시크릿을 사용한 Actions 출력 테스트 (완료)(v0.0.14)
