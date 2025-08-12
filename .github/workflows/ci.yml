@@ -87,8 +87,8 @@ jobs:
 
       # Docker Compose 메타데이터를 사용하여 태그 생성 및 푸시
       - name: Push the Docker images
-        #env:
-        #  META_TAGS: ${{ steps.meta.outputs.tags }}
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           # docker compose build로 빌드된 로컬 이미지의 이름은 [프로젝트명]-[서비스명] 형식입니다.
           # 프로젝트명(레포지토리 이름): github-actions-test
