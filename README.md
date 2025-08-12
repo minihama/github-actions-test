@@ -4,6 +4,7 @@
   3. 버전 및 패키지 생성 구문의 잡 나누는 작업 (완료)
   4. 릴리즈 테스트 및 패키지 생성 테스트 (테스트)
   5. docker pull로 동작 테스트 (테스트)
+  6. tag 에러로 meta job부분 수정 (테스트)
 
 ## Dockerfile 을 이용한 패키지 구성 (v0.0.18)
   1. node/example/Dockerfile 생성 (완료)
