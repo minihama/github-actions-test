@@ -97,7 +97,7 @@ jobs:
           echo "PROJECT_NAME: $PROJECT_NAME"
           
           echo "방법을 몰라 서비스 네임을 하드코딩함"
-          SERVICE_NAME=$(docker compose config --services | grep 'app')
+          SERVICE_NAME=$(docker compose config --services | head -n 1)
           echo "SERVICE_NAME: $SERVICE_NAME"
       
           LOCAL_IMAGE_NAME="${PROJECT_NAME}-${SERVICE_NAME}"
@@ -110,16 +110,19 @@ jobs:
           fi
           echo "Local image exists."
       
+          echo "push image tag..."
+          PUSH_IMAGES_TAG=$(echo "$PUSH_IMAGES" | head -n 1)
+
           echo "Tagging image..."
-          if ! docker tag "${LOCAL_IMAGE_NAME}" "${PUSH_IMAGES}"; then
-            echo "Error: Failed to tag image ${LOCAL_IMAGE_NAME} as ${PUSH_IMAGES}"
+          if ! docker tag "${LOCAL_IMAGE_NAME}" "${PUSH_IMAGES_TAG}"; then
+            echo "Error: Failed to tag image ${LOCAL_IMAGE_NAME} as ${PUSH_IMAGES_TAG}"
             exit 1
           fi
           echo "Tagging successful."
       
           echo "Pushing image..."
-          if ! docker push "${PUSH_IMAGES}"; then
-            echo "Error: Failed to push image ${PUSH_IMAGES}"
+          if ! docker push "${PUSH_IMAGES_TAG}"; then
+            echo "Error: Failed to push image ${PUSH_IMAGES_TAGs}"
             exit 1
           fi
           echo "Image push successful."
