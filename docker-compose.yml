@@ -2,6 +2,7 @@ services:
   app:
     build: ./go/hello-world
     container_name: go-app
+    profiles: myapp
 
   nginx:
     image: nginx:latest

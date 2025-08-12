@@ -96,16 +96,7 @@ jobs:
           PROJECT_NAME=$(basename "$GITHUB_REPOSITORY")
           echo "PROJECT_NAME: $PROJECT_NAME"
       
-          SERVICE_NAME=$(docker compose config --services)
-            for svc in $services; do
-              # 서비스 블록만 뽑기 (services: ~ 다음 서비스 시작까지)
-              # 서비스 블록 내에서 해당 서비스명 블록만 추출
-              # 그리고 그 안에 build: 키워드가 있는지 검사
-              if docker compose config | sed -n "/services:/,/^[^ ]/p" | sed -n "/^  $svc:/,/^  [^ ]/p" | grep -q 'build:'; then
-                echo "$svc"
-                break  # 첫번째 발견 후 루프 종료
-              fi
-            done
+          SERVICE_NAME=$(docker compose --profile myapp config --services)
           echo "SERVICE_NAME: $SERVICE_NAME"
       
           LOCAL_IMAGE_NAME="${PROJECT_NAME}_${SERVICE_NAME}"
