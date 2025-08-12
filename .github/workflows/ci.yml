@@ -98,7 +98,10 @@ jobs:
       
           SERVICE_NAME=$(docker compose config --services)
             for svc in $services; do
-              if docker compose config | sed -n "/services:/,/^[^ ]/p" | sed -n "/$svc:/,/^[^ ]/p" | grep -q 'build:'; then
+              # 서비스 블록만 뽑기 (services: ~ 다음 서비스 시작까지)
+              # 서비스 블록 내에서 해당 서비스명 블록만 추출
+              # 그리고 그 안에 build: 키워드가 있는지 검사
+              if docker compose config | sed -n "/services:/,/^[^ ]/p" | sed -n "/^  $svc:/,/^  [^ ]/p" | grep -q 'build:'; then
                 echo "$svc"
               fi
             done
