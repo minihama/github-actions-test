@@ -86,7 +86,7 @@ jobs:
         run: docker compose build
 
       # Docker Compose 메타데이터를 사용하여 태그 생성 및 푸시
-      - name: Push the Docker images to ghcr.io
+      - name: Push the Docker images
         #env:
         #  META_TAGS: ${{ steps.meta.outputs.tags }}
         run: |
@@ -98,6 +98,11 @@ jobs:
 
           # 로컬 이미지 이름은 [프로젝트명]_[서비스명] 형식으로 생성됩니다.
           LOCAL_IMAGE_NAME="${PROJECT_NAME}_${SERVICE_NAME}"
+          
+          # 확인
+          echo "$PROJECT_NAME"
+          echo "$SERVICE_NAME"
+          echo "$LOCAL_IMAGE_NAME"
 
           # docker compose build로 빌드된 로컬 이미지에 태그 지정
           docker tag "${LOCAL_IMAGE_NAME}" "${PROJECT_NAME}-${SERVICE_NAME}"
