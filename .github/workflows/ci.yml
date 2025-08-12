@@ -96,11 +96,11 @@ jobs:
           PROJECT_NAME=$(basename "$GITHUB_REPOSITORY")
           echo "PROJECT_NAME: $PROJECT_NAME"
           
-          echo "방법을 몰라 서비스 내임을 하드코딩함"
+          echo "방법을 몰라 서비스 네임을 하드코딩함"
           SERVICE_NAME=$(docker compose config --services | grep 'app')
           echo "SERVICE_NAME: $SERVICE_NAME"
       
-          LOCAL_IMAGE_NAME="${PROJECT_NAME}_${SERVICE_NAME}"
+          LOCAL_IMAGE_NAME="${PROJECT_NAME}-${SERVICE_NAME}"
           echo "LOCAL_IMAGE_NAME: $LOCAL_IMAGE_NAME"
       
           echo "Checking if local image exists..."
