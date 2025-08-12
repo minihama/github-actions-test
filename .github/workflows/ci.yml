@@ -91,22 +91,39 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           PUSH_IMAGES: ${{ steps.meta.outputs.tags }}
         run: |
+          echo "Start pushing Docker images"
+      
           PROJECT_NAME=$(basename "$GITHUB_REPOSITORY")
-          SERVICE_NAME=$(docker compose config --services | while read svc; do docker compose config | grep -A5 "services:" | grep -A5 "$svc:" | grep -q "build:" && echo "$svc"; done)
+          echo "PROJECT_NAME: $PROJECT_NAME"
+      
+          SERVICE_NAME=$(docker compose config --services | while read svc; do
+            docker compose config | grep -A5 "services:" | grep -A5 "$svc:" | grep -q "build:" && echo "$svc"
+          done)
+          echo "SERVICE_NAME: $SERVICE_NAME"
+      
           LOCAL_IMAGE_NAME="${PROJECT_NAME}_${SERVICE_NAME}"
-          
-          echo "$PROJECT_NAME"
-          echo "$SERVICE_NAME"
-          echo "$LOCAL_IMAGE_NAME"
-
+          echo "LOCAL_IMAGE_NAME: $LOCAL_IMAGE_NAME"
+      
+          echo "Checking if local image exists..."
           if ! docker image inspect "$LOCAL_IMAGE_NAME" > /dev/null 2>&1; then
-           echo "Error: Local image $LOCAL_IMAGE_NAME not found."
+            echo "Error: Local image $LOCAL_IMAGE_NAME not found."
             exit 1
           fi
-
-          docker tag "${LOCAL_IMAGE_NAME}" "${PUSH_IMAGES}"
-          
-          docker push "${PUSH_IMAGES}"
+          echo "Local image exists."
+      
+          echo "Tagging image..."
+          if ! docker tag "${LOCAL_IMAGE_NAME}" "${PUSH_IMAGES}"; then
+            echo "Error: Failed to tag image ${LOCAL_IMAGE_NAME} as ${PUSH_IMAGES}"
+            exit 1
+          fi
+          echo "Tagging successful."
+      
+          echo "Pushing image..."
+          if ! docker push "${PUSH_IMAGES}"; then
+            echo "Error: Failed to push image ${PUSH_IMAGES}"
+            exit 1
+          fi
+          echo "Image push successful."
 
   release-tag:
     name: release-tag 설정
