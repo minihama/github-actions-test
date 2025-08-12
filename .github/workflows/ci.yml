@@ -89,13 +89,12 @@ jobs:
       - name: Push the Docker images to ghcr.io
         env:
           META_TAGS: ${{ steps.meta.outputs.tags }}
-          PROJECT_NAME: ghcr.io/${{ github.repository }}
         run: |
           # docker compose build로 빌드된 로컬 이미지의 이름은 [프로젝트명]-[서비스명] 형식입니다.
           # 프로젝트명: github-actions-test
           # 서비스명: go-app (docker-compose.yml에 명시된 서비스명)
           # docker compose config --services 명령으로 서비스 이름을 가져옵니다.
-          # SERVICE_NAME=$(docker compose config --services)
+          PROJECT_NAME=$(docker compose config --project-name)
           SERVICE_NAME=$(docker compose config --services | while read svc; do docker compose config | grep -A5 "services:" | grep -A5 "$svc:" | grep -q "build:" && echo "$svc"; done)
 
           # 로컬 이미지 이름은 [프로젝트명]_[서비스명] 형식으로 생성됩니다.
