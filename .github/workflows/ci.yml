@@ -89,7 +89,7 @@ jobs:
       - name: Push the Docker images
         env: # GitHub Actions에서 환경변수를 Bash에서 직접 쓰려면 ${{ github.repository }} 형태로 주입
           GITHUB_REPOSITORY: ${{ github.repository }}
-          PUSH_IMAGES: ghcr.io/${{ github.repository }}
+          PUSH_IMAGES: ${{ steps.meta.outputs.tags }}
         run: |
           PROJECT_NAME=$(basename "$GITHUB_REPOSITORY")
           SERVICE_NAME=$(docker compose config --services | while read svc; do docker compose config | grep -A5 "services:" | grep -A5 "$svc:" | grep -q "build:" && echo "$svc"; done)
