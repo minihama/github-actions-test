@@ -87,28 +87,21 @@ jobs:
 
       # Docker Compose 메타데이터를 사용하여 태그 생성 및 푸시
       - name: Push the Docker images
-        env:
+        env: # GitHub Actions에서 환경변수를 Bash에서 직접 쓰려면 ${{ github.repository }} 형태로 주입
           GITHUB_REPOSITORY: ${{ github.repository }}
+          PUSH_IMAGES: ghcr.io/${{ github.repository }}
         run: |
-          # docker compose build로 빌드된 로컬 이미지의 이름은 [프로젝트명]-[서비스명] 형식입니다.
-          # 프로젝트명(레포지토리 이름): github-actions-test
-          # 서비스명: app (docker-compose.yml에 명시된 서비스명)
           PROJECT_NAME=$(basename "$GITHUB_REPOSITORY")
           SERVICE_NAME=$(docker compose config --services | while read svc; do docker compose config | grep -A5 "services:" | grep -A5 "$svc:" | grep -q "build:" && echo "$svc"; done)
-
-          # 로컬 이미지 이름은 [프로젝트명]_[서비스명] 형식으로 생성됩니다.
           LOCAL_IMAGE_NAME="${PROJECT_NAME}_${SERVICE_NAME}"
           
-          # 확인
           echo "$PROJECT_NAME"
           echo "$SERVICE_NAME"
           echo "$LOCAL_IMAGE_NAME"
 
-          # docker compose build로 빌드된 로컬 이미지에 태그 지정
-          docker tag "${LOCAL_IMAGE_NAME}" "${PROJECT_NAME}-${SERVICE_NAME}"
+          docker tag "${LOCAL_IMAGE_NAME}" "${PUSH_IMAGES}"
           
-          # 태그된 이미지 푸시
-          docker push "${PROJECT_NAME}-${SERVICE_NAME}"
+          docker push "${PUSH_IMAGES}"
 
   release-tag:
     name: release-tag 설정
