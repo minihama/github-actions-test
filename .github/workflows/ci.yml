@@ -91,19 +91,19 @@ jobs:
           # 기본 이미지 이름 (docker-compose.yml에 명시되지 않은 경우)
           IMAGE_NAME="ghcr.io/${{ github.repository }}"
           # 이미지 태그를 커밋 SHA로 설정
-          TAG=${{ github.sha }}
+          # TAG=${{ github.sha }}
 
           # docker compose build로 빌드된 로컬 이미지에 태그 지정
-          docker tag go-app "${IMAGE_NAME}:${TAG}"
+          docker tag go-app "${IMAGE_NAME}"
           
           # 최신 태그를 기본 브랜치(main)에만 추가
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            docker tag go-app "${IMAGE_NAME}:latest"
-            docker push "${IMAGE_NAME}:latest"
-          fi
+          #if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          #  docker tag go-app "${IMAGE_NAME}:latest"
+          #  docker push "${IMAGE_NAME}:latest"
+          #fi
 
           # 태그된 이미지 푸시
-          docker push "${IMAGE_NAME}:${TAG}"
+          docker push "${IMAGE_NAME}"
 
   release-tag:
     name: release-tag 설정
