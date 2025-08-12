@@ -99,6 +99,11 @@ jobs:
           echo "$SERVICE_NAME"
           echo "$LOCAL_IMAGE_NAME"
 
+          if ! docker image inspect "$LOCAL_IMAGE_NAME" > /dev/null 2>&1; then
+           echo "Error: Local image $LOCAL_IMAGE_NAME not found."
+            exit 1
+          fi
+
           docker tag "${LOCAL_IMAGE_NAME}" "${PUSH_IMAGES}"
           
           docker push "${PUSH_IMAGES}"
