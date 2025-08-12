@@ -8,6 +8,7 @@
   7. tag 에러로 /go-app 이미지 이름 삭제 (테스트)
   8. tag 에러로 TAG 값 삭제 (테스트)
   9. tag 에러로 이미지 명-서비스명 으로 수정 (테스트)
+  10. tag 에러로 SERVICE_NAME 수정 (테스트)
 
 ## Dockerfile 을 이용한 패키지 구성 (v0.0.18)
   1. node/example/Dockerfile 생성 (완료)
