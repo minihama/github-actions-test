@@ -1,3 +1,10 @@
+## Dockerfile 동작 확인을 위한 설정
+  1. ci.yml 깃허브 액선 활성화 및 node docker 비활성화 처리 (완료)
+  2. ci.yml에 패키지 생성 구문 추가 (완료)
+  3. 버전 및 패키지 생성 구문의 잡 나누는 작업 (완료)
+  4. 릴리즈 테스트 및 패키지 생성 테스트 (테스트)
+  5. docker pull로 동작 테스트 (테스트)
+
 ## Dockerfile 을 이용한 패키지 구성 (v0.0.18)
   1. node/example/Dockerfile 생성 (완료)
   2. .github/workflows/node-docker.yml 파일 생성 (완료)

@@ -7,34 +7,34 @@ on:
     branches: [ "main" ]
 
 permissions:
+  contents: read  # 소스코에 체크아웃 허가
+  packages: write # 패키지 쓰기 권한 필요
   actions: write # 이 라인을 추가하여 workflow_dispatch 권한을 부여합니다.
 
 jobs:
-  build-and-version:
-  #  runs-on: ubuntu-latest
-    runs-on: self-hosted
+  go-test:
+    name: go 버전 셋업 및 동작 테스트
+    runs-on: ubuntu-latest
+  #  runs-on: self-hosted
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: self hosted server
-      run: |
-        echo "Self hosted server🚀"
-        whoami
-        ip a
-        ls -al
+    #- name: self hosted server
+    #  run: |
+    #    echo "Self hosted server🚀"
+    #    whoami
+    #    ip a
+    #    ls -al
 
-    #- name: Set up Go
-    #  uses: actions/setup-go@v5
-    #  with:
-    #    go-version: '1.24'
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.24'
 
-    #- name: Run tests
-    #  run: go test -v ./go/hello-world/*.go
-    
-    #- name: Build with Docker Compose
-    #  run: docker compose build
+    - name: Run tests
+      run: go test -v ./go/hello-world/*.go
 
     #- name: 변수 시크릿 테스트
     #  run: |
@@ -53,16 +53,69 @@ jobs:
     #      whoami
     #      ip a
     #      ls -al       
+
+  docker-compose:
+    name: docker-compose 빌드
+    runs-on: ubuntu-latest
+    needs: ["go-test"]
+    steps:   
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3  # 컨테이너 레지스트리 로그인
+        with:
+          registry: ghcr.io                      # 컨테이너 레지스트리의 호스트명
+          username: ${{ github.actor }}          # 컨테이너 레지스트리의 로그인 ID
+          password: ${{ secrets.GITHUB_TOKEN }}  # 컨테이너 레지스트리의 로그인 패스워드
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5   # 컨테이너 이미지의 메타데이터 생성
+        with:   # 이미지명은 컨테이너 리지스트리의 명명 규칙을 따름
+          images: ghcr.io/${{ github.repository }} # ghcr.io/<소유자>/<리포지토리>
+      
+      # Docker Compose로 이미지 빌드
+      - name: Build with Docker Compose
+        run: docker compose build
+
+      # Docker Compose 메타데이터를 사용하여 태그 생성 및 푸시
+      - name: Push the Docker images to ghcr.io
+        run: |
+          # 기본 이미지 이름 (docker-compose.yml에 명시되지 않은 경우)
+          IMAGE_NAME="ghcr.io/${{ github.repository }}/go-app"
+          # 이미지 태그를 커밋 SHA로 설정
+          TAG=${{ github.sha }}
+
+          # docker compose build로 빌드된 로컬 이미지에 태그 지정
+          docker tag go-app "${IMAGE_NAME}:${TAG}"
+          
+          # 최신 태그를 기본 브랜치(main)에만 추가
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            docker tag go-app "${IMAGE_NAME}:latest"
+            docker push "${IMAGE_NAME}:latest"
+          fi
+
+          # 태그된 이미지 푸시
+          docker push "${IMAGE_NAME}:${TAG}"
+
+  release-tag:
+    name: release-tag 설정
+    runs-on: ubuntu-latest
+    needs: ["docker-compose"]
+    steps:   
+      - name: Checkout repository
+        uses: actions/checkout@v4  
     
-    - name: Trigger CD workflow
-      if: success() && github.ref == 'refs/heads/main'
-      uses: actions/github-script@v6
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          github.rest.actions.createWorkflowDispatch({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            workflow_id: 'version-update-release.yml',
-            ref: 'main'
-          })
+      - name: Trigger CD workflow
+        if: success() && github.ref == 'refs/heads/main'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'version-update-release.yml',
+              ref: 'main'
+            })
