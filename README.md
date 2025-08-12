@@ -5,6 +5,7 @@
   4. 릴리즈 테스트 및 패키지 생성 테스트 (테스트)
   5. docker pull로 동작 테스트 (테스트)
   6. tag 에러로 meta job부분 수정 (테스트)
+  7. tag 에러로 /go-app 이미지 이름 삭제 (테스트)
 
 ## Dockerfile 을 이용한 패키지 구성 (v0.0.18)
   1. node/example/Dockerfile 생성 (완료)
