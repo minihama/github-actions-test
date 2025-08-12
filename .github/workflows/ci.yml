@@ -98,14 +98,14 @@ jobs:
           # SERVICE_NAME=$(docker compose config --services)
           SERVICE_NAME=$(docker compose config --services | while read svc; do docker compose config | grep -A5 "services:" | grep -A5 "$svc:" | grep -q "build:" && echo "$svc"; done)
 
-          # 로컬 이미지 이름은 [프로젝트명]-[서비스명] 형식으로 생성됩니다.
-          LOCAL_IMAGE_NAME="${PROJECT_NAME}-${SERVICE_NAME}"
+          # 로컬 이미지 이름은 [프로젝트명]_[서비스명] 형식으로 생성됩니다.
+          LOCAL_IMAGE_NAME="${PROJECT_NAME}_${SERVICE_NAME}"
 
           # docker compose build로 빌드된 로컬 이미지에 태그 지정
-          docker tag go-app "${LOCAL_IMAGE_NAME}"
+          docker tag "${LOCAL_IMAGE_NAME}" "${PROJECT_NAME}-${SERVICE_NAME}"
           
           # 태그된 이미지 푸시
-          docker push "${LOCAL_IMAGE_NAME}"
+          docker push "${PROJECT_NAME}-${SERVICE_NAME}"
 
   release-tag:
     name: release-tag 설정
